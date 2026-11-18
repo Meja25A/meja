@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  slug      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  Product[]
+}
+
+model Product {
+  id            Int      @id @default(autoincrement())
+  code          String   @unique
+  name          String
+  description   String
+  price         Int
+  originalPrice Int
+  rating        Float    @default(0)
+  stock         Int      @default(0)
+  color         String
+  material      String
+  image         String
+  images        String[]
+  tags          String
+  newArrival    Boolean  @default(false)
+  featured      Boolean  @default(false)
+  active        Boolean  @default(true)
+  categoryId    Int
+  category      Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([categoryId, active])
+  @@index([name])
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  email        String        @unique
+  firstName    String?
+  lastName     String?
+  passwordHash String
+  createdAt    DateTime      @default(now())
+  sessions     AuthSession[]
+}
+
+model AuthSession {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    Int
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+  @@index([expiresAt])
+}
