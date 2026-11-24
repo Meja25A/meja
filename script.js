@@ -1,4 +1,3 @@
-const API_BASE = '/api';
 const cart = [];
 let products = [];
 let whatsappPhone = '';
@@ -16,16 +15,6 @@ const productModal = document.querySelector('#productModal');
 const modalBody = document.querySelector('#modalBody');
 const whatsappCartBtn = document.querySelector('#whatsappCartBtn');
 const topSearch = document.querySelector('#topSearch');
-const authModal = document.querySelector('#authModal');
-const authLoginButton = document.querySelector('#authLoginButton');
-const authStatus = document.querySelector('#authStatus');
-const authTitle = document.querySelector('#authTitle');
-const loginForm = document.querySelector('#loginForm');
-const registerForm = document.querySelector('#registerForm');
-const authAccount = document.querySelector('#authAccount');
-const authName = document.querySelector('#authName');
-const authEmail = document.querySelector('#authEmail');
-let currentUser = null;
 
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, (character) => ({
@@ -39,15 +28,6 @@ function escapeHtml(value) {
 
 function formatKSh(value) {
   return `KSh ${Number(value).toLocaleString('en-KE')}`;
-}
-
-async function fetchJson(path, options = {}) {
-  const response = await fetch(`${API_BASE}${path}`, options);
-  const result = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    throw new Error(result.error || `Request failed (${response.status})`);
-  }
-  return result;
 }
 
 function computeSubtotal() {
@@ -252,112 +232,6 @@ function closeModal() {
   productModal.setAttribute('aria-hidden', 'true');
 }
 
-function setAuthMode(mode) {
-  const isLogin = mode === 'login';
-  document.querySelector('#loginTab').classList.toggle('active', isLogin);
-  document.querySelector('#registerTab').classList.toggle('active', !isLogin);
-  document.querySelector('#loginTab').setAttribute('aria-selected', String(isLogin));
-  document.querySelector('#registerTab').setAttribute('aria-selected', String(!isLogin));
-  loginForm.classList.toggle('hidden', !isLogin);
-  registerForm.classList.toggle('hidden', isLogin);
-  authTitle.textContent = isLogin ? 'Welcome back' : 'Create your account';
-  authStatus.textContent = '';
-}
-
-function renderAuthState() {
-  authLoginButton.textContent = currentUser ? 'Account' : 'Login';
-  document.querySelector('[data-auth-open="register"]').classList.toggle('hidden', Boolean(currentUser));
-  document.querySelector('.auth-tabs').classList.toggle('hidden', Boolean(currentUser));
-  loginForm.classList.toggle('hidden', Boolean(currentUser));
-  registerForm.classList.add('hidden');
-  authAccount.classList.toggle('hidden', !currentUser);
-  if (currentUser) {
-    authTitle.textContent = 'Your account';
-    authName.textContent = [currentUser.firstName, currentUser.lastName].filter(Boolean).join(' ') || currentUser.email;
-    authEmail.textContent = currentUser.email;
-  }
-}
-
-function openAuthModal(mode = 'login') {
-  if (currentUser) {
-    renderAuthState();
-  } else {
-    setAuthMode(mode);
-  }
-  authModal.classList.remove('hidden');
-  authModal.setAttribute('aria-hidden', 'false');
-  const firstInput = authModal.querySelector('form:not(.hidden) input');
-  if (firstInput) firstInput.focus();
-}
-
-function closeAuthModal() {
-  authModal.classList.add('hidden');
-  authModal.setAttribute('aria-hidden', 'true');
-  authStatus.textContent = '';
-}
-
-async function submitAuthForm(event, endpoint) {
-  event.preventDefault();
-  const form = event.currentTarget;
-  const formData = new FormData(form);
-  const email = String(formData.get('email')).trim();
-  const password = String(formData.get('password'));
-  const credentials = { email, password };
-  if (endpoint === '/auth/register') {
-    credentials.firstName = String(formData.get('firstName')).trim();
-    credentials.lastName = String(formData.get('lastName')).trim();
-  }
-  if (endpoint === '/auth/register' && password !== formData.get('confirmPassword')) {
-    authStatus.textContent = 'The passwords do not match.';
-    return;
-  }
-
-  const submitButton = form.querySelector('button[type="submit"]');
-  submitButton.disabled = true;
-  authStatus.textContent = 'Please wait...';
-  try {
-    const result = await fetchJson(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(credentials)
-    });
-    currentUser = result.user;
-    renderAuthState();
-    authStatus.textContent = endpoint === '/auth/register'
-      ? 'Your account has been created.'
-      : 'You are signed in.';
-  } catch (error) {
-    authStatus.textContent = error.message;
-  } finally {
-    submitButton.disabled = false;
-  }
-}
-
-async function loadCurrentUser() {
-  try {
-    const result = await fetchJson('/auth/me');
-    currentUser = result.user;
-    renderAuthState();
-  } catch (error) {
-    authStatus.textContent = `Could not check your account: ${error.message}`;
-  }
-}
-
-async function signOut() {
-  const button = document.querySelector('#signOutButton');
-  button.disabled = true;
-  try {
-    await fetchJson('/auth/logout', { method: 'POST' });
-    currentUser = null;
-    renderAuthState();
-    closeAuthModal();
-  } catch (error) {
-    authStatus.textContent = error.message;
-  } finally {
-    button.disabled = false;
-  }
-}
-
 function buildWhatsAppCartMessage() {
   if (!cart.length) return '';
 
@@ -380,45 +254,26 @@ function handleCartWhatsApp() {
   }
 }
 
-async function loadStoreData() {
-  productGrid.innerHTML = '<p class="loading-state">Loading furniture from the store...</p>';
-  try {
-    const [categoryData, productData, settings] = await Promise.all([
-      fetchJson('/categories'),
-      fetchJson('/products'),
-      fetchJson('/settings')
-    ]);
-    products = productData.map((product) => ({
-      ...product,
-      new: product.newArrival
-    }));
-    whatsappPhone = settings.whatsappPhone;
-    const storePhone = document.querySelector('#storePhone');
-    storePhone.textContent = whatsappPhone
-      ? `+${whatsappPhone}`
-      : 'WhatsApp ordering unavailable';
-    renderCategories(categoryData);
-    renderProducts();
-  } catch (error) {
-    const message = window.location.protocol === 'file:'
-      ? 'This page was opened directly as a file and cannot reach the store API. Start the backend, then open http://localhost:3000/#shop.'
-      : `Could not load products from the store. ${error.message} Check that the backend and database are running, then try again.`;
-    productGrid.innerHTML = `<p class="error-state">${escapeHtml(message)}</p>`;
+function loadStoreData() {
+  const catalog = window.FURNITURE_HUB_CATALOG;
+  if (!catalog || !Array.isArray(catalog.products) || !Array.isArray(catalog.categories)) {
+    productGrid.innerHTML = '<p class="error-state">The product catalog could not be loaded. Check that catalog.js is available.</p>';
+    return;
   }
+
+  products = catalog.products.map((product) => ({
+    ...product,
+    new: product.newArrival
+  }));
+  whatsappPhone = String(catalog.whatsappPhone || '').replace(/\D/g, '');
+  document.querySelector('#storePhone').textContent = whatsappPhone
+    ? `+${whatsappPhone}`
+    : 'WhatsApp ordering unavailable';
+  renderCategories(catalog.categories);
+  renderProducts();
 }
 
 document.addEventListener('click', (event) => {
-  const authTrigger = event.target.closest('[data-auth-open]');
-  if (authTrigger) {
-    event.preventDefault();
-    openAuthModal(authTrigger.dataset.authOpen);
-  }
-  if (event.target.closest('[data-auth-mode]')) {
-    setAuthMode(event.target.closest('[data-auth-mode]').dataset.authMode);
-  }
-  if (event.target.closest('[data-close="auth"]')) closeAuthModal();
-  if (event.target.closest('#signOutButton')) signOut();
-
   const addButton = event.target.closest('[data-add]');
   if (addButton) addToCart(addButton.dataset.add);
 
@@ -441,8 +296,6 @@ document.addEventListener('click', (event) => {
   if (event.target.closest('.cart-button')) cartPanel.classList.toggle('open');
 });
 
-loginForm.addEventListener('submit', (event) => submitAuthForm(event, '/auth/login'));
-registerForm.addEventListener('submit', (event) => submitAuthForm(event, '/auth/register'));
 searchInput.addEventListener('input', renderProducts);
 topSearch.addEventListener('input', (event) => {
   searchInput.value = event.target.value;
@@ -455,10 +308,5 @@ document.querySelector('.newsletter-form').addEventListener('submit', (event) =>
   event.preventDefault();
   window.alert('Newsletter signups will be connected in a later phase.');
 });
-document.querySelector('.checkout-btn').addEventListener('click', () => {
-  window.alert('Checkout is not connected yet. The catalog is now loaded from the backend.');
-});
-
 updateCartUI();
-loadCurrentUser();
 loadStoreData();

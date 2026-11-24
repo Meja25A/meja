@@ -159,11 +159,8 @@ button {
   color: var(--text);
 }
 
-.nav-link,
-.nav-button,
 .primary-btn,
 .secondary-btn,
-.checkout-btn,
 .whatsapp-btn,
 .newsletter-form button,
 .cart-button,
@@ -179,9 +176,7 @@ button {
   transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
 }
 
-.nav-button,
 .primary-btn,
-.checkout-btn,
 .newsletter-form button,
 .add-btn, .whatsapp-link {
   background: linear-gradient(135deg, var(--primary), #ba7a54);
@@ -189,7 +184,6 @@ button {
   box-shadow: 0 12px 24px rgba(154, 91, 65, 0.2);
 }
 
-.nav-link,
 .secondary-btn,
 .buy-btn,
 .whatsapp-btn {
@@ -197,11 +191,8 @@ button {
   color: var(--primary-dark);
 }
 
-.nav-button,
-.nav-link,
 .primary-btn,
 .secondary-btn,
-.checkout-btn,
 .whatsapp-btn,
 .newsletter-form button,
 .view-btn,
@@ -215,10 +206,8 @@ button {
   font-weight: 700;
 }
 
-.nav-button:hover,
 .primary-btn:hover,
 .secondary-btn:hover,
-.checkout-btn:hover,
 .whatsapp-btn:hover,
 .newsletter-form button:hover,
 .cart-button:hover,
@@ -970,7 +959,6 @@ button {
   border-top: 1px solid var(--line);
 }
 
-.checkout-btn,
 .whatsapp-btn {
   width: 100%;
   padding-top: 1rem;
@@ -1090,84 +1078,6 @@ button {
 
 .detail-list strong {
   color: var(--text);
-}
-
-.auth-panel {
-  width: min(460px, calc(100% - 32px));
-  padding: 34px;
-}
-
-.auth-content h2 {
-  margin: 0 0 20px;
-  font-size: 1.8rem;
-  letter-spacing: -0.04em;
-}
-
-.auth-tabs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  padding: 5px;
-  margin-bottom: 20px;
-  border-radius: 999px;
-  background: rgba(154, 91, 65, 0.08);
-}
-
-.auth-tab {
-  border: 0;
-  border-radius: 999px;
-  padding: 10px;
-  background: transparent;
-  color: var(--muted);
-  font-weight: 700;
-}
-
-.auth-tab.active {
-  background: #fff;
-  color: var(--primary-dark);
-  box-shadow: 0 4px 12px rgba(58, 35, 24, 0.08);
-}
-
-.auth-form {
-  display: grid;
-  gap: 10px;
-}
-
-.auth-form label {
-  margin-top: 6px;
-  font-weight: 700;
-}
-
-.auth-form input {
-  width: 100%;
-  padding: 12px 14px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: #fff;
-}
-
-.auth-form small {
-  color: var(--muted);
-}
-
-.auth-form button {
-  width: 100%;
-  margin-top: 12px;
-}
-
-.auth-status {
-  min-height: 1.5em;
-  margin: 0 0 10px;
-  color: var(--primary-dark);
-  font-weight: 600;
-}
-
-.auth-account p {
-  overflow-wrap: anywhere;
-}
-
-.auth-account button {
-  width: 100%;
 }
 
 .hidden {
