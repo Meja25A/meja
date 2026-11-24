@@ -1,5 +1,5 @@
 window.FURNITURE_HUB_CATALOG = {
-  "whatsappPhone": "",
+  "whatsappPhone": "254705516534",
   "categories": [
     {
       "name": "Living Room",
